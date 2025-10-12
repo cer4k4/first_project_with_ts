@@ -8,10 +8,11 @@ export enum UserRoles{
 export enum systemErrors {
     PASSWORDWRONG = "رمز عبور یا شناسه کاربری صحیح نمیباشد",
     USERNAMEEXISTED = "این نام کاربری قبلا توسط شخص دیگری گرفته شده است",
-    UPDATESUCCESSFUL = "کاربر با موفقیت به روزرسانی شد",
+    UPDATESUCCESSFUL = "باموفقیت به روزرسانی شد",
     SERVERERROR = "عملیات با شکست مواجه شد",
     SUCCESSFUL = "عملیات با موفقیت انجام شد",
     USERNOTFOUNDED = "چنین کاربری وجود ندارد",
+    TASKNOTFOUNDED = "چنین تسکی وجود ندارد",
     TOKENNOTFOUNDED = "برای دسترسی به این بخش میبایست لاگین کنید",
     PERMISSIONDENIED = "کاربر گرامی شما به این بخش دسترسی ندارید",
     TOKENISEXPIRED = "توکن شما منقضی شده یکبار دیگه لاگین کنید",

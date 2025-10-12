@@ -8,8 +8,8 @@ const userSchema: Schema<IUser> = new Schema<IUser>({
   fullName: { type: String },
   role:     { type: String, default: UserRoles.USER, required: true },
   password: { type: String, required: true },
-  ...baseSchema
-});
+  ...baseSchema,
+},{ versionKey: false },);
 
 const UserModel = model("User", userSchema);
 

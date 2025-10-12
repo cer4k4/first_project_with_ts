@@ -6,9 +6,6 @@ import { hash, compare } from "bcrypt";
 import { Request, Response } from "express";
 import { RequestWithUser } from "../../shared/interfaces/request-with-payload.interface";
 import { IUser } from "../../shared/models/user.interface";
-import { ObjectId } from "mongodb";
-import { date } from "joi";
-
 
 
 async function registerUser(req:Request, res:Response) {
@@ -57,8 +54,6 @@ async function updateUser(req: RequestWithUser,res: Response) {
       user.username = updateData.username
     }
     user.fullName = updateData.fullName
-    //let id = new ObjectId(user.userId);
-    console.log(user.userId)
     user.updatedAt = Date.now()
     const result = await model.UserModel.updateOne({ _id: user.userId }, { $set: user});
     const response = new SuccessResponse(result,true,200,systemErrors.UPDATESUCCESSFUL)

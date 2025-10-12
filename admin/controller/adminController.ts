@@ -5,7 +5,6 @@ import { hash } from "bcrypt";
 import { Request, Response } from "express";
 import { RequestWithUser } from "../../shared/interfaces/request-with-payload.interface";
 import { IUser } from "../../shared/models/user.interface";
-import { exist } from "joi";
 
 
 async function updateUserByAdmin(req: RequestWithUser,res: Response) {
@@ -90,16 +89,11 @@ async function deleteUser(req:RequestWithUser, res:Response) {
 }
 
 
+
 async function allUser(req:RequestWithUser, res:Response) {
   try {
-    let limit = Number(req.params["limit"])
-    if (!limit || limit <= 0){
-      limit = Number(10)
-    }
-    let page = Number(req.params["page"])
-    if (!page || page <= 0){
-      page = Number(1)
-    }
+    const limit = Number(req.params["limit"])
+    const page = Number(req.params["page"])
     const offset = (page - 1) * limit
     const allUsers = await model.UserModel.find({deletedAt:{$exists:false}}).skip(offset).limit(limit);
     const response = new SuccessResponse(allUsers)
@@ -110,17 +104,6 @@ async function allUser(req:RequestWithUser, res:Response) {
     return res.status(500).send(response);
   }
 }
-
-
-async function checkRoles(role:string) {
-  for (let r of Object(UserRoles).values){
-    if (role === r) {
-      return true
-    }
-  }
-  return false
-}
-
 
 
 
@@ -143,6 +126,15 @@ async function softDeleteUser(req: RequestWithUser,res: Response) {
     const response = new SuccessResponse({},false,500,systemErrors.SERVERERROR)
     return res.status(500).json(response);
   }
+}
+
+async function checkRoles(role:string) {
+  for (let r of Object(UserRoles).values){
+    if (role === r) {
+      return true
+    }
+  }
+  return false
 }
 
 

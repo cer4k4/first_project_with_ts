@@ -1,7 +1,7 @@
 import { param } from "express-validator";
 
 
-export const ParamGetAllUserDto = [
+export const PaginationParam = [
   param("page")
   .isInt({gt:0})
   .withMessage("page  => (پارامتر باید دامنه اعداد طبیعی باشد) فرمت پارامتر وارد شده صحیح نمیباشد"),

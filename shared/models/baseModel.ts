@@ -1,5 +1,5 @@
 export interface IBaseModel {
-  createdAt: number;
-  updatedAt: number;
+  createdAt:  number;
+  updatedAt:  number;
   deletedAt?: number;
 }
