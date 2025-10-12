@@ -92,15 +92,24 @@ async function deleteUser(req:RequestWithUser, res:Response) {
 
 async function allUser(req:RequestWithUser, res:Response) {
   try {
-    const limit = Number(req.params["limit"])
-    const page = Number(req.params["page"])
-    const offset = (page - 1) * limit
-    const allUsers = await model.UserModel.find({deletedAt:{$exists:false}}).skip(offset).limit(limit);
-    const response = new SuccessResponse(allUsers)
+    const limit = Number(req.params["limit"]);
+    const page = Number(req.params["page"]);
+    const feild = req.query["feild"];
+    const word = req.query["word"] || "";
+    const offset = (page - 1) * limit;
+    let query: any = { deletedAt: { $exists: false } };
+    if (feild) {
+      query[feild as string] = { $regex: word, $options: "i" };
+    }
+    const allusers = await model.UserModel.find(query)
+      .skip(offset)
+      .limit(limit);
+
+    const response = new SuccessResponse(allusers);
     return res.status(200).json(response);
   } catch (error) {
-    console.log("Server Error AllUser",error)
-    const response = new SuccessResponse({},false,500,systemErrors.SERVERERROR)
+    console.log("Server Error AllUser", error);
+    const response = new SuccessResponse({}, false, 500, systemErrors.SERVERERROR);
     return res.status(500).send(response);
   }
 }

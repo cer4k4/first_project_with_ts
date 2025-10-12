@@ -124,28 +124,34 @@ async function allMyTasks(req:RequestWithUser, res:Response) {
 }
 
 
-async function allTasks(req:RequestWithUser, res:Response) {
+async function allTasks(req: RequestWithUser, res: Response) {
   try {
-    const limit = Number(req.params["limit"])
-    const page = Number(req.params["page"])
-    const feild = req.query["feild"] 
-    const word = req.query["word"] || ""
-    const offset = (page - 1) * limit
-    if (feild){
-      const alltasks = await model.TaskModel.find({feild: /{word}/i,  deletedAt: { $exists: false }});
-      console.log(feild,word,alltasks)
-      const response = new SuccessResponse(alltasks)
-      return res.status(200).json(response);
+    const limit = Number(req.params["limit"]);
+    const page = Number(req.params["page"]);
+    const feild = req.query["feild"];
+    const word = req.query["word"] || "";
+    const offset = (page - 1) * limit;
+
+    let query: any = { deletedAt: { $exists: false } };
+
+    if (feild) {
+      query[feild as string] = { $regex: word, $options: "i" };
     }
-    const alltasks = await model.TaskModel.find({deletedAt:{$exists:false}}).skip(offset).limit(limit);
-    const response = new SuccessResponse(alltasks)
+
+    const alltasks = await model.TaskModel.find(query)
+      .skip(offset)
+      .limit(limit);
+
+    const response = new SuccessResponse(alltasks);
     return res.status(200).json(response);
+
   } catch (error) {
-    console.log("Server Error AllTasks",error)
-    const response = new SuccessResponse({},false,500,systemErrors.SERVERERROR)
+    console.log("Server Error AllTasks", error);
+    const response = new SuccessResponse({}, false, 500, systemErrors.SERVERERROR);
     return res.status(500).send(response);
   }
 }
+
 
 
 async function softDeleteTask(req:RequestWithUser, res:Response) {
