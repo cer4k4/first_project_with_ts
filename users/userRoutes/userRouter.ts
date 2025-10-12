@@ -17,7 +17,7 @@ userRouter.post("/create",RegisterUserDto,DataValidator,userController.registerU
 
 userRouter.get("/byId",middleware.Authentication,middleware.Authorization([UserRoles.ADMIN,UserRoles.USER]),userController.getUser)
 
-userRouter.patch("/update",middleware.Authorization([UserRoles.ADMIN,UserRoles.USER]),UpdateUserDto,DataValidator,middleware.Authentication,userController.updateUser)
+userRouter.patch("/update",middleware.Authentication,middleware.Authorization([UserRoles.ADMIN,UserRoles.USER]),UpdateUserDto,DataValidator,userController.updateUser)
 
 userRouter.post("/login",LoginUserDto,DataValidator,userController.loginUser)
 

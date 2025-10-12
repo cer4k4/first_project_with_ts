@@ -12,9 +12,9 @@ const Authorization = (roles:UserRoles[]) => {
   return async (req:RequestWithUser, res:Response, next:NextFunction) => {
     
     try {      
-      const payload = req.user?.role;
+      const role = req.user?.role;
       for (let r of roles) {
-        if (req.user?.role === r) {
+        if (role === r) {
           return next();
         }
       }
@@ -36,7 +36,7 @@ async function Authentication(req: RequestWithPayload, res: Response, next: Next
     }
     
     const payload:IPayload = jwt.verify(token, secretKey) as IPayload;
-    const userFound = await model.UserModel.findById(payload.userId) as IUser;
+    const userFound = await model.UserModel.findById(payload.userId);
     
     if (!userFound) {
       const response = new SuccessResponse({},false,404,systemErrors.USERNOTFOUNDED)
@@ -46,11 +46,8 @@ async function Authentication(req: RequestWithPayload, res: Response, next: Next
     (req as RequestWithUser).user = userFound;
     const requestWithUser = req as RequestWithUser;
     if (requestWithUser.user){
-      requestWithUser.user.userId = userFound.userId
+      requestWithUser.user.userId = String(userFound._id)
     }
-    //newRequest.user.userId = user.id || ""
-    // req.user.userId = user.id
-    // req.payload.role = user.role
     return next();
   } catch (err) {
     console.log("Server Error Authentication",err)

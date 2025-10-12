@@ -16,6 +16,8 @@ adminRouter.put("/update/:userId",middleware.Authentication,middleware.Authoriza
 
 adminRouter.delete("/delete/:userId",middleware.Authentication,middleware.Authorization([UserRoles.ADMIN]),ParamUserIdDto,DataValidator,adminController.deleteUser)
 
+adminRouter.delete("/soft/delete/:userId",middleware.Authentication,middleware.Authorization([UserRoles.ADMIN]),ParamUserIdDto,DataValidator,adminController.softDeleteUser)
+
 adminRouter.get("/list/:page/:limit",middleware.Authentication,middleware.Authorization([UserRoles.ADMIN]),ParamGetAllUserDto,DataValidator,adminController.allUser)
 
 export = adminRouter;

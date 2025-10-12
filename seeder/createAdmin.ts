@@ -16,6 +16,8 @@ export async function addAdmin() {
             role: UserRoles.ADMIN,
             userId: "",
             fullName: "Admin",
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
         }
         admin1.password = await hash(String(admin1.password), 10);
         const result = await model.UserModel.insertOne(admin1)

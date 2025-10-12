@@ -7,6 +7,7 @@ import { Request, Response } from "express";
 import { RequestWithUser } from "../../shared/interfaces/request-with-payload.interface";
 import { IUser } from "../../shared/models/user.interface";
 import { ObjectId } from "mongodb";
+import { date } from "joi";
 
 
 
@@ -56,8 +57,10 @@ async function updateUser(req: RequestWithUser,res: Response) {
       user.username = updateData.username
     }
     user.fullName = updateData.fullName
-    let id = new ObjectId(user.userId);
-    const result = await model.UserModel.updateOne({ _id: id }, { $set: {username:user.username,fullName:user.fullName,password:user.password} });
+    //let id = new ObjectId(user.userId);
+    console.log(user.userId)
+    user.updatedAt = Date.now()
+    const result = await model.UserModel.updateOne({ _id: user.userId }, { $set: user});
     const response = new SuccessResponse(result,true,200,systemErrors.UPDATESUCCESSFUL)
     return res.status(200).json(response);
   } catch (error) {
@@ -83,12 +86,12 @@ async function loginUser(req:Request, res:Response) {
   try {
     const username = req.body.username || '';
     const password = req.body.password || '';
-    const userFound = await model.UserModel.findOne({username});
+    const userFound = await model.UserModel.findOne({username,deletedAt: { $exists: false } });
     if (!userFound) {
       const response = new SuccessResponse({},false,404,systemErrors.USERNOTFOUNDED)
       return res.status(404).json(response);
     }
-    if ( ! await compare(password,userFound.password)) {
+    if ( ! await compare(password,String(userFound.password))) {
       const response = new SuccessResponse({},false,400,systemErrors.PASSWORDWRONG)
       return res.status(400).json(response);
     }
@@ -97,7 +100,9 @@ async function loginUser(req:Request, res:Response) {
       username: username,
       password: password,
       role: UserRoles.USER,
-      fullName: userFound.fullName,
+      fullName: String(userFound.fullName),
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
     };
     const response = new SuccessResponse(auth.generateToken(user))
     return res.json(response);

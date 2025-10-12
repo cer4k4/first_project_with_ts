@@ -1,11 +1,12 @@
 import model from "../../shared/models/userSchema";
 import { SuccessResponse } from "../../shared/interfaces/responseInterface";
 import { systemErrors, UserRoles } from "../../shared/models/enum"
-import { hash, compare } from "bcrypt";
+import { hash } from "bcrypt";
 import { Request, Response } from "express";
 import { RequestWithUser } from "../../shared/interfaces/request-with-payload.interface";
 import { IUser } from "../../shared/models/user.interface";
-import { ObjectId } from "mongodb";
+import { exist } from "joi";
+
 
 async function updateUserByAdmin(req: RequestWithUser,res: Response) {
   try {
@@ -36,10 +37,10 @@ async function updateUserByAdmin(req: RequestWithUser,res: Response) {
       user.role = updateData.role
     }
     if (updateData.fullName) {
-        user.fullName = updateData.fullName
+      user.fullName = updateData.fullName
     }
-    let id = new ObjectId(user.userId);
-    const result = await model.UserModel.updateOne({ _id: id }, { $set: {username:user.username,fullName:user.fullName,password:user.password,role:user.role} });
+    user.updatedAt = Date.now()
+    const result = await model.UserModel.updateOne({ _id: userId }, { $set: user });
     const response = new SuccessResponse(result)
     return res.status(200).json(response);
   } catch (error) {
@@ -100,7 +101,7 @@ async function allUser(req:RequestWithUser, res:Response) {
       page = Number(1)
     }
     const offset = (page - 1) * limit
-    const allUsers = await model.UserModel.find({}).skip(offset).limit(limit);
+    const allUsers = await model.UserModel.find({deletedAt:{$exists:false}}).skip(offset).limit(limit);
     const response = new SuccessResponse(allUsers)
     return res.status(200).json(response);
   } catch (error) {
@@ -121,4 +122,28 @@ async function checkRoles(role:string) {
 }
 
 
-export = { getUserByAdmin , updateUserByAdmin , deleteUser , allUser };
+
+
+
+async function softDeleteUser(req: RequestWithUser,res: Response) {
+  try {
+    const userId = req.params["userId"]
+    const updateData = req.body;
+    let user = await model.UserModel.findById(userId) as IUser
+    if (!user){
+      const response = new SuccessResponse({},false,404,systemErrors.USERNOTFOUNDED)
+      return res.status(404).json(response);
+    }
+    user.deletedAt = Date.now()
+    const result = await model.UserModel.updateOne({ _id: userId }, { $set: user });
+    const response = new SuccessResponse()
+    return res.status(200).json(response);
+  } catch (error) {
+    console.log("Server Error UpdateUserByAdmin",error)
+    const response = new SuccessResponse({},false,500,systemErrors.SERVERERROR)
+    return res.status(500).json(response);
+  }
+}
+
+
+export = { getUserByAdmin , updateUserByAdmin , deleteUser , allUser , softDeleteUser };
