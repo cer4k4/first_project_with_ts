@@ -128,9 +128,17 @@ async function allTasks(req:RequestWithUser, res:Response) {
   try {
     const limit = Number(req.params["limit"])
     const page = Number(req.params["page"])
+    const feild = req.query["feild"] 
+    const word = req.query["word"] || ""
     const offset = (page - 1) * limit
-    const allUsers = await model.TaskModel.find({deletedAt:{$exists:false}}).skip(offset).limit(limit);
-    const response = new SuccessResponse(allUsers)
+    if (feild){
+      const alltasks = await model.TaskModel.find({feild: /{word}/i,  deletedAt: { $exists: false }});
+      console.log(feild,word,alltasks)
+      const response = new SuccessResponse(alltasks)
+      return res.status(200).json(response);
+    }
+    const alltasks = await model.TaskModel.find({deletedAt:{$exists:false}}).skip(offset).limit(limit);
+    const response = new SuccessResponse(alltasks)
     return res.status(200).json(response);
   } catch (error) {
     console.log("Server Error AllTasks",error)
