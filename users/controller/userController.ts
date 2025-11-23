@@ -12,8 +12,14 @@ async function registerUser(req:Request, res:Response) {
   try {
     const body = req.body
     const username = body.username;
-    const userFound = await model.UserModel.findOne({username});
-    if (userFound) {
+    const userFoundByUsername = await model.UserModel.findOne({username});
+    if (userFoundByUsername) {
+      const response = new SuccessResponse({},false,409,systemErrors.USERNAMEEXISTED)
+      return res.status(409).json(response);
+    }
+    const phoneNumber = body.phoneNumber;
+    const userFoundByphoneNumber = await model.UserModel.findOne({phoneNumber});
+    if (userFoundByphoneNumber) {
       const response = new SuccessResponse({},false,409,systemErrors.USERNAMEEXISTED)
       return res.status(409).json(response);
     }
@@ -23,6 +29,7 @@ async function registerUser(req:Request, res:Response) {
     const newUser = await model.UserModel.create({
       username,
       fullName,
+      phoneNumber,
       password: hashedPassword,
     });
     const response = new SuccessResponse({username: newUser.username, fullName: newUser.fullName, role: newUser.role},true,201,systemErrors.SUCCESSFUL)
@@ -38,20 +45,22 @@ async function updateUser(req: RequestWithUser,res: Response) {
   try {
     const updateData = req.body;
     const user = (req.user) as IUser
-    if (updateData.newPassword) {
-      if (! await compare(updateData.password,user.password)) {
-        const response = new SuccessResponse({},false,400,systemErrors.PASSWORDWRONG)
-        return res.status(400).json(response);
-      }
-      const hashedPassword = await hash(updateData.newPassword, 10);
-      user.password = hashedPassword
-    }
+    console.log(user)
     if (updateData.username){
       if (await model.UserModel.findOne({username:updateData.username})) {
         const response = new SuccessResponse({},false,409,systemErrors.USERNAMEEXISTED)
         return res.status(409).json(response);
       }
       user.username = updateData.username
+    }
+    const password = req.body.password || '';
+    if (updateData.newPassword) {
+      if (! await compare(password,String(user.password))) {
+        const response = new SuccessResponse({},false,400,systemErrors.PASSWORDWRONG)
+        return res.status(400).json(response);
+      }
+      const hashedPassword = await hash(updateData.newPassword, 10);
+      user.password = hashedPassword
     }
     user.fullName = updateData.fullName
     user.updatedAt = Date.now()
@@ -81,6 +90,7 @@ async function loginUser(req:Request, res:Response) {
   try {
     const username = req.body.username || '';
     const password = req.body.password || '';
+    const phoneNumber = req.body.password || '';
     const userFound = await model.UserModel.findOne({username,deletedAt: { $exists: false } });
     if (!userFound) {
       const response = new SuccessResponse({},false,404,systemErrors.USERNOTFOUNDED)
@@ -94,6 +104,7 @@ async function loginUser(req:Request, res:Response) {
       userId: userFound.id,
       username: username,
       password: password,
+      phoneNumber: phoneNumber,
       role: UserRoles.USER,
       fullName: String(userFound.fullName),
       createdAt: Date.now(),

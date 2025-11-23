@@ -39,4 +39,9 @@ export const RegisterUserDto = [
     .isLength({ min: 3, max: 32 })
     .withMessage("حداقل طول نام ۳ و حداکثر ۳۲ کاراکتر می باشد"),
 
+  body("phoneNumber")
+    .isString()
+    .withMessage("شماره موبایل باید رشته باشد")
+    .isLength({ min: 11, max: 11 })
+    .withMessage(" طول شماره موبایل باید ۱۱ کاراکتر باشد")
 ];

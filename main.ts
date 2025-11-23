@@ -3,8 +3,18 @@ import getConnectionToDB from "./db/connect-to-db";
 import baseRouter from "./routes/baseRouter";
 import morgan from "morgan";
 import { addAdmin } from "./seeder/createAdmin";
+import cors from "cors";
 
 const app: express.Application = express();
+
+// CORS Middleware
+app.use(
+  cors({
+    origin: "*", // allow all (good for development)
+    methods: ["GET", "POST", "PATCH", "DELETE","PUT"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 // Body Parser
 app.use(express.json(), express.urlencoded({ extended: false }));

@@ -5,6 +5,7 @@ import { Request, Response } from "express";
 import { RequestWithUser } from "../../shared/interfaces/request-with-payload.interface";
 import { IUser } from "../../shared/models/user.interface";
 import { ITask } from "../../shared/models/task.interface";
+import { date } from "joi";
 
 
 
@@ -57,8 +58,8 @@ async function editTask(req: Request,res: Response) {
 async function getTask(req:Request, res:Response) {
   try {
     const id = req.params["taskId"]
-    const task = await model.TaskModel.findById(id) as ITask;
-    const response = new SuccessResponse({task})
+    const task = await model.TaskModel.findById(id);
+    const response = new SuccessResponse(task)
     return res.status(200).json(response);
   } catch (error) {
     console.log("Server Error GetTask",error)
